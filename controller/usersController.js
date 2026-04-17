@@ -1,26 +1,65 @@
 const Users = require("../models/users");
+const bcrypt = require('bcrypt');
 
 const addUser = async(req,res)=>{
     try{
+        const {name,email,password} = req.body
         const existingUser = await Users.findOne({
             where:{
-                email:req.body.email
+                email:email
             }
         })
         if(existingUser){
             return res.status(400).json({message:"Email Already exists"})
         }
-        const user = await Users.create(req.body);
+        const saltRounds =10;
+        bcrypt.hash(req.body.password,saltRounds,async(err,hash)=>{
+            if(err){
+                throw new Error(err);
+            }
+        const user = await Users.create({name,email,password:hash});
         return res.status(201).json(user);
+        })
+        
     }
     catch(err){
         if(err.name==="SequelizeUniqueConstraintError"){
             return res.status(400).json({message:"Email Already Exists"});
         }
         res.status(500).json({message:"Something went wrong"});
-    }
-   
-
+    }   
 }
 
-module.exports = {addUser}
+const loginUser =async (req,res)=>{
+    try{
+        const existingUser =await Users.findOne({
+            where:{
+                email:req.body.email
+            }
+        })
+        if(existingUser){
+            bcrypt.compare(req.body.password,existingUser.password,(err,result)=>{
+                if(err){
+                    return res.status(500).json({message:err});
+                }
+                else if(result===true){   
+                    console.log("User logged in")                
+                    return res.status(200).json({user:existingUser});
+                }
+                else{
+                    return res.status(401).json({message:"User not authorized"});
+                }
+
+            })           
+            
+        }else{
+            return res.status(404).json({message:"User Not Found"});
+        }
+        
+    }
+    catch(err){
+        return res.status(500).json({message:"Something went wrong"});
+    }
+}
+
+module.exports = {addUser,loginUser}
