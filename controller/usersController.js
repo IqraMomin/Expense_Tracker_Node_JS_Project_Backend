@@ -1,5 +1,6 @@
 const Users = require("../models/users");
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 
 const addUser = async(req,res)=>{
     try{
@@ -30,6 +31,10 @@ const addUser = async(req,res)=>{
     }   
 }
 
+const generateAccessToken = (id)=>{
+    return jwt.sign({id},"secretKey");
+}
+
 const loginUser =async (req,res)=>{
     try{
         const existingUser =await Users.findOne({
@@ -44,7 +49,7 @@ const loginUser =async (req,res)=>{
                 }
                 else if(result===true){   
                     console.log("User logged in")                
-                    return res.status(200).json({user:existingUser});
+                    return res.status(200).json({token:generateAccessToken(existingUser.id)});
                 }
                 else{
                     return res.status(401).json({message:"User not authorized"});
