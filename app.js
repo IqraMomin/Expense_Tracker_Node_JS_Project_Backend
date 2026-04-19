@@ -5,11 +5,13 @@ const userRoutes = require("./routes/userRoutes");
 const db = require("./utils/db-conection");
 const cors = require('cors');
 const expenseRoutes = require("./routes/expenseRoutes");
+const paymentRoutes = require('./routes/paymentRoutes');
 require("./models");
 
 app.use(express.json());
 app.use(cors());
 
+app.use("/pay",paymentRoutes)
 app.use("/users",userRoutes);
 app.use("/expenses",expenseRoutes);
 
