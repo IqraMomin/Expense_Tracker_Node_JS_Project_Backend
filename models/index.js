@@ -6,5 +6,8 @@ const Orders = require("../models/Orders");
 Users.hasMany(Expense);
 Expense.belongsTo(Users);
 
+Users.hasMany(Orders);
+Orders.belongsTo(Users);
+
 
 module.exports = {Users,Expense,Orders}

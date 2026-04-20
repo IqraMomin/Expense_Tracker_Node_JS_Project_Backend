@@ -4,6 +4,7 @@ const usersController = require("../controller/usersController");
 
 router.post("/signup",usersController.addUser);
 router.post("/login",usersController.loginUser);
+router.get("/premium/showLeaderBoard",usersController.getLeaderBoard);
 
 module.exports = router;
 

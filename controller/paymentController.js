@@ -1,13 +1,14 @@
-const { Orders } = require("../models");
+const { Orders, Users } = require("../models");
 const { createOrder,getPaymentStatus:fetchStatus } = require("../services/cashfreeService");
 
 
 
 const processPayment = async (req, res) => {
+    const UserId = req.user.id;
     const orderId = "OrderId-" + Date.now();
     const orderAmount = 2000;
     const orderCurrency = "INR";
-    const customerId = "1";
+    const customerId = UserId.toString();
     const customerPhone = "9809876543";
     try {
         const paymentSessionId = await createOrder(orderId, orderAmount, orderCurrency, customerId, customerPhone);
@@ -16,7 +17,8 @@ const processPayment = async (req, res) => {
             paymentSessionId,
             orderAmount,
             orderCurrency,
-            paymentStatus: "Pending"
+            paymentStatus: "Pending",
+            UserId
         });
         res.json({paymentSessionId,orderId});
 
@@ -28,10 +30,18 @@ const processPayment = async (req, res) => {
 const getPaymentStatus = async (req, res) => {
     try{
         const {orderId} = req.params;
+        const order = await Orders.findOne({where:{orderId}});
         const status = await fetchStatus(orderId);
+
         await Orders.update({paymentStatus:status},
             {where:{orderId}});
-        res.json({status});
+        
+        if(status==="Success"){
+            await Users.update({
+                isPremium:true
+            },{where:{id:order.UserId}})
+        }
+        return res.redirect("http://localhost:5173/welcome");
 
 
     }catch (err) {

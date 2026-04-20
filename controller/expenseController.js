@@ -1,11 +1,14 @@
+const { Users } = require("../models");
 const Expense = require("../models/exepnse");
 
 const addExpense = async(req,res)=>{
     try{
-        console.log(req.id);
         const expenses = {...req.body,UserId:req.user.id}
         const expense = await Expense.create(expenses);
         if(expense){
+            const user = await Users.findByPk(req.user.id);
+            user.totalExpense = user.totalExpense+Number(req.body.amount);
+            await user.save();
             return res.status(201).json({expense});
         }
     }catch(err){

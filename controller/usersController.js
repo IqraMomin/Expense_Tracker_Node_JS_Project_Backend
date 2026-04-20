@@ -1,6 +1,8 @@
 const Users = require("../models/users");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
+const { Expense } = require("../models");
+const { fn, col, Model } = require("sequelize");
 
 const addUser = async(req,res)=>{
     try{
@@ -49,7 +51,8 @@ const loginUser =async (req,res)=>{
                 }
                 else if(result===true){   
                     console.log("User logged in")                
-                    return res.status(200).json({token:generateAccessToken(existingUser.id)});
+                    return res.status(200).json({token:generateAccessToken(existingUser.id),
+                        "isPremium":existingUser.isPremium});
                 }
                 else{
                     return res.status(401).json({message:"User not authorized"});
@@ -66,5 +69,27 @@ const loginUser =async (req,res)=>{
         return res.status(500).json({message:"Something went wrong"});
     }
 }
+const getLeaderBoard = async (req, res) => {
+    try {
+        const board = await Users.findAll({
+            attributes: [
+                "id",
+                "name",
+                "totalExpense"
+            ],            
+            order: [["totalExpense", "DESC"]]
+        });
 
-module.exports = {addUser,loginUser}
+        if (board.length === 0) {
+            return res.status(404).json({ message: "No data found" });
+        }
+
+        return res.status(200).json(board);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
+module.exports = {addUser,loginUser,getLeaderBoard}
