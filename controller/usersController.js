@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { Expense } = require("../models");
 const { fn, col, Model } = require("sequelize");
 
+
 const addUser = async(req,res)=>{
     try{
         const {name,email,password} = req.body
