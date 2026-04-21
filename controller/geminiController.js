@@ -14,7 +14,7 @@ const getCategoriesUsingAI = async(req,res)=>{
         apiKey:process.env.GEMINI_API_KEY
     });
     const responsefromAI =await ai.models.generateContent({
-        model:"gemini-3-flash-preview",
+        model:"gemini-2.0-flash",
         contents:newPrompt
     })
     console.log(responsefromAI.text);

@@ -92,5 +92,14 @@ const getLeaderBoard = async (req, res) => {
         res.status(500).json({ message: "Something went wrong" });
     }
 };
+const resetPassword = async(req,res)=>{
+    try{
+        const {email}= req.body;
+
+    }catch(err){
+        return res.status(500).json({err:err.message});
+    }
+
+}
 
 module.exports = {addUser,loginUser,getLeaderBoard}
