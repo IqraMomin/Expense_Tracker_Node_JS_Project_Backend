@@ -8,7 +8,9 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const paymentRoutes = require('./routes/paymentRoutes');
 const dotenv = require("dotenv").config();
 const geminiRoutes = require("./routes/geminiRoutes");
+const passwordRoutes = require("./routes/passwordRoutes");
 require("./models");
+
 
 app.use(express.json());
 app.use(cors());
@@ -17,6 +19,7 @@ app.use("/pay",paymentRoutes)
 app.use("/users",userRoutes);
 app.use("/expenses",expenseRoutes);
 app.use("/gemini",geminiRoutes);
+app.use("/password",passwordRoutes);
 
 db.sync({force:false}).then(()=>{
     app.listen(port,()=>{
