@@ -4,8 +4,9 @@ const sequelize = require("../utils/db-conection");
  
 
 const addExpense = async(req,res)=>{
+    let transaction;
     try{
-        const transaction = await sequelize.transaction();
+        transaction = await sequelize.transaction();
         const expenses = {...req.body,UserId:req.user.id}
         const expense = await Expense.create(expenses,{transaction});
         if(expense){
@@ -16,26 +17,40 @@ const addExpense = async(req,res)=>{
             return res.status(201).json({expense});
         }
     }catch(err){
-        await transaction.rollback();
+        if(transaction) await transaction.rollback();
         return res.status(500).json({message:"Something went wrong"});
     }
 }
 
-const getAllExpenses = async(req,res)=>{
-    try{
-        const expenses = await Expense.findAll({
-            where:{
-                UserId:req.user.id
-            }
-        });
-        if(expenses){
-            return res.status(200).json(expenses);
-        }
-    }catch(err){
-        return res.status(500).json({message:"Something went wrong"});
+const getAllExpenses = async (req, res) => {
+    try {
+      const ITEMS_PER_PAGE = parseInt(req.query.limit) || 2;
+      const page = parseInt(req.query.page) || 1;
+  
+      const totalExpense = await Expense.count({
+        where: { UserId: req.user.id },
+      });
+  
+      const expenses = await Expense.findAll({
+        where: { UserId: req.user.id },
+        offset: (page - 1) * ITEMS_PER_PAGE,
+        limit: ITEMS_PER_PAGE,
+        order: [["createdAt", "DESC"]],
+      });
+  
+      return res.status(200).json({
+        expenses,
+        currentPage: page,
+        isPreviousPage: page > 1,
+        isNextPage: ITEMS_PER_PAGE * page < totalExpense,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalExpense / ITEMS_PER_PAGE),
+      });
+    } catch (err) {
+      return res.status(500).json({ message: "Something went wrong" });
     }
-
-}
+  };
 
 const deleteExpense = async (req, res) => {
     let transaction;
