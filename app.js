@@ -10,8 +10,11 @@ const dotenv = require("dotenv").config();
 const geminiRoutes = require("./routes/geminiRoutes");
 const passwordRoutes = require("./routes/passwordRoutes");
 require("./models");
+const fs = require("fs");
+const morgan = require("morgan");
 
 
+const accessLog = fs.createWriteStream(path.join(__dirname,"access.log"),{flags:"a"});
 app.use(express.json());
 app.use(cors());
 
@@ -20,9 +23,10 @@ app.use("/users",userRoutes);
 app.use("/expenses",expenseRoutes);
 app.use("/gemini",geminiRoutes);
 app.use("/password",passwordRoutes);
+app.use(morgan('combined',{stream:accessLog}));
 
 db.sync({force:false}).then(()=>{
-    app.listen(port,()=>{
-        console.log(`Server is Up and Running on port http://localhost:${port}`)
+    app.listen(process.env.PORT||3000,()=>{
+        console.log(`Server is Up and Running...`)
     })
 })
