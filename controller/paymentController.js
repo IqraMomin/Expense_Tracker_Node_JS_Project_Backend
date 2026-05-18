@@ -41,7 +41,7 @@ const getPaymentStatus = async (req, res) => {
                 isPremium:true
             },{where:{id:order.UserId}})
         }
-        return res.redirect("http://localhost:5173/welcome?premium=true");
+        return res.redirect("http://3.6.41.27:5173/welcome?premium=true");
 
 
     }catch (err) {
